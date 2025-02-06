@@ -1,10 +1,42 @@
-from flask import Flask
+from flask import Flask, request, jsonify
+from models.task import Task
 
 app = Flask(__name__)
 
-@app.route("/")
-def index():
-    return "Hello World"
+
+
+
+tasks = []
+task_id_control = 1
+
+
+@app.post("/tasks")
+def create_task():
+    data = request.get_json()
+    global task_id_control
+    new_task = Task(id=task_id_control,title=data['title'], description=data.get("description", ""))
+    task_id_control +=1
+    tasks.append(new_task)
+    print(tasks)
+    return jsonify({"message": "New task created!"})
+
+@app.get("/tasks")
+def get_all_tasks():
+    task_list = [task.to_dict() for task in tasks ]
+    output = {
+            "tasks": task_list,
+            "total_tasks": len(task_list)
+            }
+    return jsonify(output)
+
+@app.get("/tasks/<int:id>")
+def get_task_by_id(id):
+    #task = None
+    for t in tasks:
+        if t.id == id:
+            return jsonify(t.to_dict())
+        
+    return jsonify({"Message": "Task not found"}), 404
 
 
 
