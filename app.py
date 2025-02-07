@@ -54,6 +54,19 @@ def update_task(id):
     task.description = data['description']
     task.completed = data['completed']
 
+@app.delete("/tasks/<int:id>")
+def delete_task(id):
+    task = None
+    for t in tasks:
+        if t.id == id:
+            task = t
+            break
+
+    if not task:
+        return jsonify({"Message" : "task not found"}), 404
+    
+    tasks.remove(task)
+    return jsonify({"Message" : "task deleted"})
 
 if __name__ == '__main__':
     app.run(debug=True, port=8080)
